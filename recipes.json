@@ -1,0 +1,62 @@
+{
+ "updated": "2026-11-05",
+ "recipes": [
+  {
+   "id": "recipe-56",
+   "title": "Fajita-Style Freezer Marinade",
+   "types": [
+    "savory"
+   ],
+   "styles": [
+    "meal-prep",
+    "healthy"
+   ],
+   "detail": "complete",
+   "summary": "Made with boneless skinless chicken, bell pepper and onion.",
+   "ingredients": [
+    "300 g boneless skinless chicken, sliced into strips",
+    "1 bell pepper, sliced into strips",
+    "1/2 onion, sliced into strips",
+    "100 g mushrooms, sliced and dry-sautéed 3–4 minutes until the water cooks off (cool before bagging)",
+    "1 tbsp + 1/2 tsp olive oil, juice of 1/2 lime, 3/4 tsp hot chili powder, 1/2 tsp garlic powder, pinch of dried oregano, salt to taste"
+   ],
+   "method": [
+    "Toss the chicken strips with all marinade ingredients; rest 30 minutes in the fridge.",
+    "Transfer to a freezer bag, squeeze out the air, lay flat, label with the date; freeze up to 3 months.",
+    "Thaw overnight in the fridge (it keeps marinating as it thaws — never on the counter).",
+    "Sear the chicken strips with the peppers, onion and mushrooms from the bag in a screaming-hot pan 6–8 minutes until cooked through. Serve in wraps or bowls."
+   ],
+   "source_url": "",
+   "source_name": "Pingu (created for Sarvin)"
+  },
+  {
+   "id": "recipe-57",
+   "title": "Lemon-Garlic Herb Freezer Marinade",
+   "types": [
+    "savory"
+   ],
+   "styles": [
+    "meal-prep",
+    "balanced"
+   ],
+   "detail": "complete",
+   "summary": "Made with boneless skinless chicken thighs, bell pepper and yellow onion.",
+   "ingredients": [
+    "300 g boneless skinless chicken thighs",
+    "1 bell pepper, cut into chunks",
+    "1/2 yellow onion, cut into wedges",
+    "100 g mushrooms, sliced and dry-sautéed 3–4 minutes until the water cooks off (cool before bagging)",
+    "2 tbsp olive oil, juice of 1/2 lemon, 2 garlic cloves, minced, 1/2 tsp dried oregano, scant 1/2 tsp salt, 1/4 tsp black pepper, pinch of chili flakes (optional)",
+    "2–3 tbsp cottage cheese, blended smooth (optional, for a creamy version)"
+   ],
+   "method": [
+    "Toss the chicken with all marinade ingredients; rest 30 minutes in the fridge.",
+    "Transfer to a freezer bag, squeeze out the air, lay flat, label with the date; freeze up to 3 months.",
+    "Thaw overnight in the fridge.",
+    "Bake at 200°C for 20–25 minutes, or grill, until the chicken is cooked through and the vegetables are tender."
+   ],
+   "source_url": "",
+   "source_name": "Pingu (created for Sarvin)"
+  }
+ ]
+}

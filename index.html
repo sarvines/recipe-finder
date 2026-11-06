@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recipe Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--paper:#0E0F11;--panel:#17191C;--panel2:#1D2024;--ink:#F2F2EF;--ink2:#D3D6DB;--muted:#A3A7AE;--faint:#7C818A;--line:#2A2D32;--accent:#FF8A2A;--accent-ink:#FFA35C;--award-bg:#2B1B0D;--award-ink:#FFB57A}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif}
+h1,h2,h3{font-family:'Inter Tight',Inter,sans-serif}
+.wrap{max-width:1320px;margin:0 auto;padding:0 clamp(16px,3vw,36px)}
+header{padding:40px 0 8px}header h1{font-size:clamp(36px,5vw,52px);margin:0 0 8px;letter-spacing:-1px}header p{color:var(--muted);max-width:64ch;margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.pi{width:auto;height:.9em;color:var(--accent);flex:none}
+.count{font:500 13px 'IBM Plex Mono',monospace;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.kick{font:500 11.5px 'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--accent-ink)}
+.showall{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 6px 0 16px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink);font:500 14.5px Inter,sans-serif;cursor:pointer}
+.showall .sa-i{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--panel2);color:var(--accent-ink);font:400 20px/1 'Inter Tight',sans-serif}
+.showall[aria-expanded="true"] .sa-i{transform:rotate(45deg)}
+footer{padding:30px 0 40px;color:var(--faint);font-size:13px}footer a{color:var(--muted)}
+/* ============ Recipe Finder ============ */
+.rfwrap{padding-top:16px}
+.rf{display:grid;grid-template-columns:240px minmax(0,1fr);gap:20px 32px;align-items:start}
+.rfbar{grid-column:1/-1;display:flex;align-items:center;gap:12px}
+.rfsearch{flex:1;display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.rfsearch:focus-within{border-color:var(--accent)}
+.rfsearch .pi{height:14px}
+.rfsearch input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--ink);font:400 16px Inter,sans-serif}
+.rfsearch input::placeholder{color:var(--faint)}
+.rfcount{margin:0;font:500 13px 'IBM Plex Mono',monospace;color:var(--muted);white-space:nowrap}
+.rffiltbtn{display:none}
+.rffilters{position:sticky;top:84px;display:flex;flex-direction:column;gap:18px}
+.rfglab{margin:0 0 8px;font:500 11.5px 'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--accent-ink)}
+.rfchips{display:flex;flex-wrap:wrap;gap:6px}
+.rfchip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 11px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--ink2);font:500 13px Inter,sans-serif;cursor:pointer}
+.rfchip span{font:400 11px 'IBM Plex Mono',monospace;color:var(--faint)}
+.rfchip:hover{border-color:var(--muted)}
+.rfchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#16120E}
+.rfchip[aria-pressed="true"] span{color:#16120E}
+.rfclear{align-self:flex-start;background:none;border:0;padding:4px 0;color:var(--accent-ink);font:500 13px Inter,sans-serif;cursor:pointer;text-decoration:underline}
+.rfgrid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.rfcard{width:100%;height:100%;display:flex;flex-direction:column;gap:8px;text-align:left;padding:16px 18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;color:var(--ink);cursor:pointer;transition:border-color .2s,transform .2s}
+.rfcard:hover{border-color:rgba(255,138,42,.5);transform:translateY(-2px)}
+.rfno{font:500 11px 'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+.rfno em{font-style:normal;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--award-bg);color:var(--award-ink)}
+.rftitle{font:600 18px/1.25 'Inter Tight',sans-serif}
+.rfsumm{font-size:14px;line-height:1.5;color:var(--muted)}
+.rftags{margin-top:auto;padding-top:6px;font:500 12px Inter,sans-serif;color:var(--accent-ink)}
+.rfempty{grid-column:2;color:var(--muted)}
+.rfdlg{width:min(860px,calc(100vw - 24px));max-height:calc(100vh - 48px);padding:0;border:1px solid var(--line);border-radius:18px;background:var(--panel);color:var(--ink)}
+.rfdlg::backdrop{background:rgba(5,6,8,.7);backdrop-filter:blur(3px)}
+.rfdlgin{position:relative;padding:28px 30px 26px}
+.rfclose{position:absolute;top:14px;right:14px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:400 22px/1 Inter,sans-serif;cursor:pointer}
+.rfdlg .kick{margin:0 50px 6px 0;font:500 11.5px 'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--accent-ink)}
+.rfdlg h2{margin:0 50px 8px 0;font-size:clamp(24px,3vw,32px)}
+.rfsum{margin:0 0 18px;color:var(--ink2)}
+.rfcols{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:24px}
+.rfcols h3{margin:0 0 8px;font-size:16px}
+.rfcols ul,.rfcols ol{margin:0;padding-left:20px;color:var(--ink2);font-size:15px;line-height:1.6}
+.rfcols li+li{margin-top:4px}
+.rfmissing{color:var(--faint);list-style:none;margin-left:-20px}
+.rfsrc{margin:20px 0 0;padding-top:14px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+@media (max-width:860px){
+  .rf{grid-template-columns:1fr}
+  .rffiltbtn{display:inline-flex;align-items:center;min-height:48px;padding:0 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);font:500 14px Inter,sans-serif;cursor:pointer}
+  .rffiltbtn[aria-expanded="true"]{border-color:var(--accent)}
+  .rffilters{display:none;position:static}
+  .rffilters.open{display:flex}
+  .rfcount{display:none}
+  .rfempty{grid-column:1}
+  .rfcols{grid-template-columns:1fr}
+  .rfdlgin{padding:22px 18px 20px}
+}
+@media (prefers-reduced-motion:reduce){.rfcard,.rfcard:hover{transition:none;transform:none}}
+
+/* Recipe Finder v2 */
+.rfsort select{min-height:48px;padding:0 34px 0 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);font:500 14px Inter,sans-serif;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 21px,calc(100% - 13px) 21px;background-size:5px 5px;background-repeat:no-repeat;cursor:pointer}
+.rfsurprise{min-height:48px;padding:0 16px;border:1px solid rgba(255,138,42,.5);border-radius:12px;background:rgba(255,138,42,.10);color:var(--ink);font:600 14px Inter,sans-serif;cursor:pointer;white-space:nowrap}
+.rfsurprise:hover{background:rgba(255,138,42,.2)}
+.rfresults{min-width:0}
+.rfshelf{padding:0!important;margin:0 0 30px}
+.rfshelfhd{display:flex;align-items:center;gap:12px;margin:0 0 12px}
+.rfshelfhd h2{margin:0;font-size:22px}
+.rfshelfhd .count{font:500 13px 'IBM Plex Mono',monospace;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.rfshelf .rfmore{margin:14px auto 0}
+.rfitem{position:relative;list-style:none}
+.rfitem .rfcard{padding-right:46px}
+.rfsave{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font:400 17px/1 Inter,sans-serif;cursor:pointer}
+.rfsave[aria-pressed="true"]{color:var(--accent);border-color:rgba(255,138,42,.5)}
+.rfacts{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:18px}
+.rfbtn{min-height:38px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--ink);font:500 13.5px Inter,sans-serif;cursor:pointer}
+.rfbtn:hover,.rfbtn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent-ink)}
+.rfcopied{font-size:13px;color:var(--accent-ink)}
+.rfsrc{margin-top:14px!important}
+@media (max-width:860px){.rfbar{flex-wrap:wrap}.rfsearch{flex-basis:100%}.rfsort{flex:1}.rfsort select{width:100%}}
+@media (max-width:860px){.rfsort select{padding:0 26px 0 12px;font-size:13.5px;background-position:calc(100% - 15px) 21px,calc(100% - 10px) 21px}.rfsurprise{padding:0 12px;font-size:13.5px}.rffiltbtn{padding:0 12px}}
+
+
+</style></head><body>
+<header><div class="wrap"><h1>Recipe Finder</h1><p>A searchable cookbook: shelves by meal, search by recipe, ingredient or mood, filters, favourites and shareable links. Load your own <code>recipes.json</code>.</p></div></header>
+<main><section class="rfwrap"><div class="wrap">
+<div id="rf" class="rf">
+<div class="rfbar">
+<label class="rfsearch"><span class="sr">Search recipes</span><svg class="pi" viewBox="0 0 8 7" width="24" height="21" aria-hidden="true" shape-rendering="crispEdges"><path fill="currentColor" d="M1 0h4v1h-4zM0 1h1v3h-1zM5 1h1v3h-1zM1 4h4v1h-4zM5 5h2v1h-2zM6 6h2v1h-2z"/></svg><input type="search" id="rf-q" placeholder="Search pasta, chicken, apple…" autocomplete="off"></label>
+<button type="button" class="rffiltbtn" aria-expanded="false" aria-controls="rf-filters">Filters</button>
+<label class="rfsort"><span class="sr">Sort</span><select id="rf-sort"><option value="complete">Complete first</option><option value="az">A–Z</option></select></label>
+<button type="button" class="rfsurprise" id="rf-surprise">Surprise me</button>
+<p class="rfcount" id="rf-count" aria-live="polite"></p>
+</div>
+<div class="rffilters" id="rf-filters"></div>
+<div class="rfresults" id="rf-grid"></div>
+<p class="rfempty" id="rf-empty" hidden>No recipes match. Try fewer filters.</p>
+<noscript><p class="rfempty">The Recipe Finder needs JavaScript.</p></noscript>
+</div></div></section></main>
+<dialog class="rfdlg" id="rf-dlg" aria-labelledby="rf-dlg-title"><div class="rfdlgin">
+<button type="button" class="rfclose" aria-label="Close recipe">×</button>
+<p class="kick" id="rf-dlg-kick"></p><h2 id="rf-dlg-title"></h2><p class="rfsum" id="rf-dlg-sum"></p>
+<div class="rfcols"><div><h3>Ingredients</h3><ul id="rf-dlg-ing"></ul></div><div><h3>Method</h3><ol id="rf-dlg-met"></ol></div></div>
+<div class="rfacts"><button type="button" class="rfbtn" id="rf-dlg-save" aria-pressed="false">♡ Save</button><button type="button" class="rfbtn" id="rf-dlg-copy">Copy ingredients</button><button type="button" class="rfbtn" id="rf-dlg-link">Copy link</button><span class="rfcopied" id="rf-dlg-msg" aria-live="polite"></span></div>
+<p class="rfsrc" id="rf-dlg-src"></p>
+</div></dialog>
+<footer><div class="wrap">Made by <a href="https://sarvineshaghi.com/">Sarvin Eshaghi</a> · see the full collection at <a href="https://sarvineshaghi.com/hobbies/recipes/">sarvineshaghi.com/hobbies/recipes</a></div></footer>
+<script>
+(function(){ // Recipe Finder: shelves, search, filters, sort, surprise, saved, copy
+  var root=document.getElementById('rf'); if(!root) return;
+  var $=function(id){return document.getElementById(id);};
+  var q=$('rf-q'), box=$('rf-grid'), cnt=$('rf-count'), empty=$('rf-empty'), fbox=$('rf-filters'), fbtn=root.querySelector('.rffiltbtn'), dlg=$('rf-dlg'), sortSel=$('rf-sort');
+  var SHELVES=[["breakfast","Breakfast",["breakfast"]],["mains","Lunch & dinner",["dinner","lunch","main","side","soup","appetizer"]],["snacks","Snacks",["snack"]],["sweet","Desserts & baking",["dessert","baking","bread"]],["sauces","Sauces & marinades",["condiment","marinade","freezer-marinade","sauce","pickle"]],["drinks","Drinks",["drink"]],["tips","Tips & techniques",["tips","technique","basics"]],["savory","More savoury ideas",["savory"]]];
+  var R=[], sel={meal:{},styles:{},detail:{},saved:{}}, opener=null, cur=null, openShelf={}, saved={};
+  try{saved=JSON.parse(localStorage.getItem('rf-saved')||'{}')||{};}catch(e){}
+  function store(){try{localStorage.setItem('rf-saved',JSON.stringify(saved));}catch(e){}}
+  function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function cap(t){t=String(t).replace(/-/g,' '); return t.charAt(0).toUpperCase()+t.slice(1);}
+  function shelfOf(r){for(var i=0;i<SHELVES.length;i++){var ts=r.types||[]; if(SHELVES[i][2].some(function(t){return ts.indexOf(t)>=0;})) return SHELVES[i][0];} return 'savory';}
+  function chip(g,v,label,n){return '<button type="button" class="rfchip" aria-pressed="false" data-g="'+g+'" data-v="'+esc(v)+'">'+esc(label)+(n!=null?' <span>'+n+'</span>':'')+'</button>';}
+  function group(label,html){return '<div class="rfgroup"><p class="rfglab">'+label+'</p><div class="rfchips">'+html+'</div></div>';}
+  function count(fn){var c={}; R.forEach(function(r){[].concat(fn(r)).forEach(function(v){c[v]=(c[v]||0)+1;});}); return c;}
+  function buildFilters(){
+    var cm=count(function(r){return r._shelf;}), cs=count(function(r){return r.styles||[];}), cd=count(function(r){return r.detail;});
+    fbox.innerHTML=group('Meal',SHELVES.filter(function(s){return cm[s[0]];}).map(function(s){return chip('meal',s[0],s[1],cm[s[0]]);}).join(''))
+      +group('Style',Object.keys(cs).sort(function(a,b){return cs[b]-cs[a];}).map(function(k){return chip('styles',k,cap(k),cs[k]);}).join(''))
+      +group('Recipe detail',['complete','partial'].filter(function(k){return cd[k];}).map(function(k){return chip('detail',k,cap(k),cd[k]);}).join(''))
+      +group('Yours',chip('saved','1','♥︎ Saved',null))
+      +'<button type="button" class="rfclear">Clear all</button>';
+  }
+  function active(){return q.value.trim()||Object.keys(sel).some(function(g){return Object.keys(sel[g]).some(function(k){return sel[g][k];});});}
+  function matches(r){
+    var t=q.value.trim().toLowerCase();
+    if(t){var hay=(r.title+' '+(r.summary||'')+' '+(r.ingredients||[]).join(' ')+' '+(r.types||[]).join(' ')+' '+(r.styles||[]).join(' ')).toLowerCase(); if(t.split(/\s+/).some(function(w){return hay.indexOf(w)<0;})) return false;}
+    var on=function(g){return Object.keys(sel[g]).filter(function(k){return sel[g][k];});};
+    var m=on('meal'); if(m.length&&m.indexOf(r._shelf)<0) return false;
+    var st=on('styles'); if(st.length&&!st.some(function(v){return (r.styles||[]).indexOf(v)>=0;})) return false;
+    var d=on('detail'); if(d.length&&d.indexOf(r.detail)<0) return false;
+    if(sel.saved['1']&&!saved[r.id]) return false;
+    return true;
+  }
+  function sorted(list){
+    var a=list.slice();
+    if(sortSel.value==='az') a.sort(function(x,y){return x.title.localeCompare(y.title);});
+    else a.sort(function(x,y){return (x.detail==='complete'?0:1)-(y.detail==='complete'?0:1)||x._n-y._n;});
+    return a;
+  }
+  function card(r){
+    var n=r._n;
+    return '<li class="rfitem"><button type="button" class="rfcard" data-i="'+r._i+'"><span class="rfno">Recipe '+(n<10?'0':'')+n+(r.detail==='partial'?' <em>partial</em>':'')+'</span><span class="rftitle">'+esc(r.title)+'</span>'+(r.summary?'<span class="rfsumm">'+esc(r.summary)+'</span>':'')+'<span class="rftags">'+[].concat(r.types||[],r.styles||[]).filter(function(x){return x!=='savory';}).slice(0,4).map(function(x){return esc(cap(x));}).join(' · ')+'</span></button>'
+      +'<button type="button" class="rfsave" data-i="'+r._i+'" aria-pressed="'+(saved[r.id]?'true':'false')+'" aria-label="Save '+esc(r.title)+'">'+(saved[r.id]?'♥︎':'♡')+'</button></li>';
+  }
+  function render(){
+    var list=sorted(R.filter(matches));
+    cnt.textContent=list.length+(list.length===1?' recipe':' recipes');
+    empty.hidden=list.length>0;
+    if(active()){ box.innerHTML='<ul class="rfgrid">'+list.map(card).join('')+'</ul>'; return; }
+    box.innerHTML=SHELVES.map(function(s){
+      var items=list.filter(function(r){return r._shelf===s[0];}); if(!items.length) return '';
+      var all=openShelf[s[0]], shown=all?items:items.slice(0,8);
+      return '<section class="rfshelf" aria-labelledby="rfs-'+s[0]+'"><div class="rfshelfhd"><h2 id="rfs-'+s[0]+'">'+esc(s[1])+'</h2><span class="count">'+items.length+'</span></div><ul class="rfgrid">'+shown.map(card).join('')+'</ul>'
+        +(items.length>8?'<button type="button" class="showall rfmore" data-s="'+s[0]+'" aria-expanded="'+(all?'true':'false')+'"><span class="sa-t">'+(all?'Show fewer':'Show all '+items.length)+'</span><span class="sa-i" aria-hidden="true">+</span></button>':'')+'</section>';
+    }).join('');
+  }
+  function msg(t){var m=$('rf-dlg-msg'); m.textContent=t; clearTimeout(msg.t); msg.t=setTimeout(function(){m.textContent='';},1800);}
+  function paintSave(){var b=$('rf-dlg-save'), on=!!saved[cur.id]; b.setAttribute('aria-pressed',String(on)); b.textContent=on?'♥︎ Saved':'♡ Save';}
+  function open(i,btn){
+    var r=R[i]; cur=r; opener=btn||null;
+    $('rf-dlg-kick').textContent=[].concat(r.types||[],r.styles||[]).filter(function(x){return x!=='savory';}).map(cap).join(' · ')+(r.detail==='partial'?' · partial recipe':'');
+    $('rf-dlg-title').textContent=r.title;
+    var sum=$('rf-dlg-sum'); sum.textContent=r.summary||''; sum.hidden=!r.summary;
+    $('rf-dlg-ing').innerHTML=(r.ingredients||[]).length?r.ingredients.map(function(x){return '<li>'+esc(x)+'</li>';}).join(''):'<li class="rfmissing">Not listed in the original post.</li>';
+    $('rf-dlg-met').innerHTML=(r.method||[]).length?r.method.map(function(x){return '<li>'+esc(x)+'</li>';}).join(''):'<li class="rfmissing">Not listed in the original post.</li>';
+    $('rf-dlg-src').innerHTML=r.source_url?('From <a href="'+esc(r.source_url)+'" target="_blank" rel="noopener">'+esc(r.source_name||'the original post')+' ↗</a>'):(r.source_name?'From '+esc(r.source_name):'');
+    $('rf-dlg-copy').hidden=!(r.ingredients||[]).length; paintSave(); $('rf-dlg-msg').textContent='';
+    if(history.replaceState) history.replaceState(null,'','#'+r.id);
+    if(dlg.showModal){ if(!dlg.open) dlg.showModal(); } else dlg.setAttribute('open','');
+    dlg.querySelector('.rfclose').focus();
+  }
+  function close(){ if(dlg.close) dlg.close(); else dlg.removeAttribute('open'); }
+  function copy(t,ok){ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){msg(ok);},function(){msg('Copy failed — select and copy by hand.');}); }
+  dlg.addEventListener('close',function(){ if(history.replaceState) history.replaceState(null,'',location.pathname); if(opener&&document.contains(opener)) opener.focus(); });
+  dlg.querySelector('.rfclose').addEventListener('click',close);
+  dlg.addEventListener('click',function(e){ if(e.target===dlg) close(); });
+  $('rf-dlg-save').addEventListener('click',function(){ if(saved[cur.id]) delete saved[cur.id]; else saved[cur.id]=1; store(); paintSave(); render(); });
+  $('rf-dlg-copy').addEventListener('click',function(){ copy(cur.title+'\n'+(cur.ingredients||[]).map(function(x){return '• '+x;}).join('\n'),'Ingredients copied ✓'); });
+  $('rf-dlg-link').addEventListener('click',function(){ copy(location.origin+location.pathname+'#'+cur.id,'Link copied ✓'); });
+  $('rf-surprise').addEventListener('click',function(e){ var pool=R.filter(function(r){return r.detail==='complete'&&matches(r);}); if(!pool.length) pool=R.filter(matches); if(!pool.length) return; open(pool[Math.floor(Math.random()*pool.length)]._i,e.currentTarget); });
+  box.addEventListener('click',function(e){
+    var sv=e.target.closest('.rfsave'); if(sv){var r=R[+sv.getAttribute('data-i')]; if(saved[r.id]) delete saved[r.id]; else saved[r.id]=1; store(); sv.setAttribute('aria-pressed',String(!!saved[r.id])); sv.textContent=saved[r.id]?'♥︎':'♡'; if(sel.saved['1']) render(); return;}
+    var mo=e.target.closest('.rfmore'); if(mo){var k=mo.getAttribute('data-s'); openShelf[k]=!openShelf[k]; render(); return;}
+    var b=e.target.closest('.rfcard'); if(b) open(+b.getAttribute('data-i'),b);
+  });
+  fbox.addEventListener('click',function(e){
+    var b=e.target.closest('.rfchip');
+    if(b){var g=b.getAttribute('data-g'), v=b.getAttribute('data-v'); sel[g][v]=!sel[g][v]; b.setAttribute('aria-pressed',String(!!sel[g][v])); render(); return;}
+    if(e.target.closest('.rfclear')){sel={meal:{},styles:{},detail:{},saved:{}}; q.value=''; fbox.querySelectorAll('.rfchip').forEach(function(c){c.setAttribute('aria-pressed','false');}); render();}
+  });
+  fbtn.addEventListener('click',function(){var o=fbox.classList.toggle('open'); fbtn.setAttribute('aria-expanded',String(o));});
+  q.addEventListener('input',render); sortSel.addEventListener('change',render);
+  fetch('recipes.json').then(function(r){return r.json();}).then(function(d){
+    R=(d.recipes||d); R.forEach(function(r,i){r._i=i; r._n=i+1; r._shelf=shelfOf(r);});
+    buildFilters(); render();
+    var h=decodeURIComponent(location.hash.slice(1)); if(h){ for(var i=0;i<R.length;i++){ if(R[i].id===h){ open(i,null); break; } } }
+  }).catch(function(){ cnt.textContent=''; empty.hidden=false; empty.textContent='The recipes couldn’t load. Please try again later.'; });
+})();
+</script>
+</body></html>
